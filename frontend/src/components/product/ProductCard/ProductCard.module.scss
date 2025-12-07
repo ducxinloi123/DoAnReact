@@ -1,0 +1,351 @@
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card {
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 15px;
+  border-radius: 16px;
+  background: #fff;
+  position: relative;
+  border: 2px solid transparent;
+
+  &:hover {
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    border-color: #f0f0f0;
+  }
+}
+
+.imageContainer {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #fafafa;
+  aspect-ratio: 1 / 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .card:hover & {
+    transform: scale(1.08);
+  }
+}
+
+/* --- LỚP PHỦ OVERLAY --- */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+}
+
+.overlayContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+  color: #222;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(15px) scale(0.9);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: linear-gradient(135deg, #f8f8f8 0%, #efefef 100%);
+  }
+}
+
+.eyeIcon {
+  stroke: #222;
+  transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng khi hover card */
+.card:hover {
+  .overlay {
+    opacity: 1;
+  }
+
+  .overlayContent {
+    transform: translateY(0) scale(1);
+  }
+
+  .eyeIcon {
+    transform: scale(1.1);
+  }
+
+  .wishlistButton {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* --- NÚT YÊU THÍCH --- */
+.wishlistButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transform: scale(0.7) translateY(-10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: #fff;
+    transform: scale(1.15) translateY(0) rotate(10deg);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+
+    .heartIcon {
+      stroke: #e74c3c;
+    }
+  }
+
+  &:active {
+    transform: scale(0.95) translateY(0);
+  }
+}
+
+.heartIcon {
+  stroke: #555;
+  fill: none;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.heartIconFilled {
+  fill: #e74c3c;
+  stroke: #e74c3c;
+  animation: heartBeat 0.6s ease;
+}
+
+/* Animation cho trái tim */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.4);
+  }
+  40% {
+    transform: scale(1.2);
+  }
+  60% {
+    transform: scale(1.4);
+  }
+  80% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* --- THÔNG TIN SẢN PHẨM --- */
+.name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+  height: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  transition: color 0.3s ease;
+
+  .card:hover & {
+    color: #c92127;
+  }
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #c92127;
+  margin: 0;
+  letter-spacing: -0.3px;
+  
+  /* Thêm badge effect */
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(201, 33, 39, 0.08) 0%, rgba(201, 33, 39, 0.05) 100%);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  .card:hover & {
+    background: linear-gradient(135deg, rgba(201, 33, 39, 0.12) 0%, rgba(201, 33, 39, 0.08) 100%);
+    transform: scale(1.05);
+  }
+}
+
+.colors {
+  justify-content: center;
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  height: 18px;
+}
+
+.color {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #e5e5e5;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: scale(1.2);
+    border-color: #c92127;
+  }
+}
+
+/* --- HIỂN THỊ NÚT YÊU THÍCH LUÔN TRÊN MOBILE --- */
+@media (max-width: 768px) {
+  .wishlistButton {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .imageContainer {
+    margin-bottom: 12px;
+  }
+
+  .name {
+    font-size: 0.95rem;
+    height: 68px;
+  }
+
+  .price {
+    font-size: 1.1rem;
+  }
+
+  .overlayContent {
+    padding: 10px 20px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 10px;
+  }
+
+  .wishlistButton {
+    width: 38px;
+    height: 38px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .name {
+    font-size: 0.9rem;
+    height: 63px;
+  }
+
+  .price {
+    font-size: 1rem;
+    padding: 5px 10px;
+  }
+}
+
+/* --- LOADING STATE --- */
+.card.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* --- NEW BADGE (Optional) --- */
+.newBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 3;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
+}
+
+/* --- SALE BADGE (Optional) --- */
+.saleBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 3;
+  background: linear-gradient(135deg, #c92127 0%, #a11a20 100%);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(201, 33, 39, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}

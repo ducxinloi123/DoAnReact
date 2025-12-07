@@ -1,0 +1,341 @@
+.promoContainer {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+
+  h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+    letter-spacing: -1px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #c92127 0%, #a11a20 100%);
+      border-radius: 2px;
+    }
+  }
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 50px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.promoList {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  animation: fadeIn 0.5s ease;
+}
+
+.promoCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  animation: slideInUp 0.5s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(201, 33, 39, 0.05), transparent);
+    transition: left 0.6s ease;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(201, 33, 39, 0.2);
+    border-color: #c92127;
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  // Thêm pattern dashed đẹp hơn
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px dashed rgba(201, 33, 39, 0.2);
+    border-radius: 16px;
+    pointer-events: none;
+  }
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 25px 20px;
+  }
+}
+
+.promoInfo {
+  flex-grow: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.promoCode {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #c92127;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(201, 33, 39, 0.1) 0%, rgba(201, 33, 39, 0.05) 100%);
+  border-radius: 8px;
+  border: 2px solid rgba(201, 33, 39, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(201, 33, 39, 0.15) 0%, rgba(201, 33, 39, 0.1) 100%);
+  }
+}
+
+.promoDescription {
+  font-size: 1.05rem;
+  color: #444;
+  margin-bottom: 12px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.promoExpiry {
+  font-size: 0.9rem;
+  color: #999;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &::before {
+    content: '📅';
+    font-size: 1rem;
+  }
+}
+
+.promoAction {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 576px) {
+    width: 100%;
+    align-items: stretch;
+  }
+}
+
+.promoQuantity {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-radius: 20px;
+  border: 2px solid #ffc107;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  
+  &::before {
+    content: '🎁';
+    font-size: 1rem;
+  }
+}
+
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #222 0%, #000 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+}
+
+/* --- THÊM BADGE ĐẶC BIỆT CHO MÃ HOT --- */
+.promoCard:first-child {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+  border-color: #c92127;
+  
+  &::after {
+    border-color: #c92127;
+    border-width: 3px;
+  }
+
+  .promoCode {
+    background: linear-gradient(135deg, #c92127 0%, #a11a20 100%);
+    color: #fff;
+    border: none;
+    animation: pulse 2s ease-in-out infinite;
+  }
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(201, 33, 39, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(201, 33, 39, 0);
+  }
+}
+
+/* --- ADD STAGGER ANIMATION --- */
+.promoCard {
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .promoContainer {
+    margin: 40px auto;
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    margin-bottom: 35px;
+  }
+
+  .promoCode {
+    font-size: 1.5rem;
+    padding: 6px 12px;
+  }
+
+  .promoDescription {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .promoContainer {
+    h1 {
+      font-size: 1.75rem;
+    }
+  }
+
+  .promoCard {
+    padding: 20px 15px;
+  }
+
+  .promoCode {
+    font-size: 1.3rem;
+    letter-spacing: 1.5px;
+  }
+
+  .copyButton {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}

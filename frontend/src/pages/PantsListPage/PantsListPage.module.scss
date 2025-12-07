@@ -1,0 +1,234 @@
+/* ShirtListPage.module.scss */
+
+.container {
+    max-width: 1300px;
+    margin: 40px auto;
+    padding: 0 20px;
+    animation: fadeIn 0.6s ease;
+}
+
+/* --- LAYOUT CHÍNH (MỚI) --- */
+.layoutWrapper {
+    display: flex;
+    gap: 30px; /* Khoảng cách giữa Sidebar và Sản phẩm */
+    align-items: flex-start;
+    position: relative;
+}
+
+/* --- SIDEBAR (CỘT TRÁI) --- */
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky; /* Giữ sidebar trôi theo khi cuộn */
+    top: 20px;
+    z-index: 10;
+}
+
+/* Style chung cho các box trong sidebar */
+.sidebarSection {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    margin-bottom: 20px; /* Khoảng cách giữa filter giá và filter màu */
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: #c92127;
+        box-shadow: 0 6px 15px rgba(201, 33, 39, 0.08);
+    }
+
+    h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #eee;
+
+        /* Icon trang trí */
+        &::before {
+            font-size: 1.2rem;
+        }
+    }
+
+    /* Custom style cho từng loại filter nếu cần */
+    &.priceFilter h4::before { content: '💰'; }
+    &.colorFilter h4::before { content: '🎨'; }
+    
+    /* Ghi đè style của component con (nếu cần) */
+    :global(.priceSliderContainer) { margin-bottom: 0; }
+    :global(.priceLabels) { 
+        font-size: 0.9rem; 
+        color: #555; 
+        margin-bottom: 10px;
+    }
+}
+
+/* --- MAIN CONTENT (CỘT PHẢI) --- */
+.mainContent {
+    flex: 1; /* Chiếm phần còn lại */
+    min-width: 0; /* Fix lỗi grid tràn flex container */
+}
+
+/* --- TOP BAR (SORT & COUNT) --- */
+.topControlBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    margin-bottom: 25px;
+}
+
+/* Số lượng sản phẩm */
+.productCount {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    span {
+        color: #c92127;
+        font-weight: 700;
+    }
+}
+
+/* Sort Options */
+.sortOptions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+    }
+}
+
+.sortSelect {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: all 0.2s;
+
+    &:hover, &:focus {
+        border-color: #c92127;
+        background-color: #fff;
+        outline: none;
+    }
+}
+
+/* --- PRODUCT GRID --- */
+/* Chỉnh lại grid 3 cột vì diện tích ngang đã giảm do sidebar */
+.productGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 25px;
+    animation: fadeInUp 0.6s ease;
+    margin-bottom: 40px;
+}
+
+/* --- NO RESULTS --- */
+.noResults {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fafafa;
+    border-radius: 12px;
+    border: 2px dashed #e0e0e0;
+    
+    &::before {
+        content: '😕';
+        font-size: 3.5rem;
+        display: block;
+        margin-bottom: 15px;
+        opacity: 0.6;
+    }
+    
+    p {
+        font-size: 1.1rem;
+        color: #666;
+    }
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVE --- */
+
+/* Tablet & Mobile (Dưới 992px): Sidebar rớt xuống hoặc lên trên */
+@media (max-width: 992px) {
+    .layoutWrapper {
+        flex-direction: column; /* Xếp dọc */
+        gap: 20px;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static; /* Bỏ sticky trên mobile */
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Chia 2 cột filter cho gọn */
+        gap: 20px;
+    }
+
+    .sidebarSection {
+        margin-bottom: 0; /* Grid gap lo rồi */
+    }
+
+    .productGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        grid-template-columns: 1fr; /* Mobile nhỏ thì xếp dọc sidebar */
+    }
+
+    .topControlBar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .sortOptions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .productGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .productGrid {
+        grid-template-columns: 1fr;
+    }
+}
