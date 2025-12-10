@@ -30,7 +30,7 @@ const Footer = () => {
       <div className={styles.container}>
        
         <div className={styles.column}>
-          <h3 className={styles.columnTitle}>Thời trang nam XT FASHION</h3>
+          <h3 className={styles.columnTitle}> Nhan Duc Store</h3>
           <p className={styles.description}>
             Hệ thống thời trang cho phái mạnh hàng đầu Việt Nam, hướng tới phong cách nam tính, lịch lãm và trẻ trung.
           </p>
@@ -76,7 +76,7 @@ const Footer = () => {
               allowFullScreen="" 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
-              title="Vị trí cửa hàng 97 Man Thiện"
+              title="NTUU, TP HCM"
             ></iframe>
             <p className={styles.mapAddress}>NTUU, TP HCM</p>
           </div>

@@ -25,7 +25,8 @@ import PromotionsPage from './pages/PromotionsPage/PromotionsPage';
 import CheckoutPage from './pages/CheckoutPage/CheckoutPage';
 import SearchResultsPage from './pages/SearchResultsPage/SearchResultsPage';
 
-// Admin (nested)
+// Admin 
+import AdminRoute from './pages/ProtectedRoute/AdminRoute';
 import AdminPage from './pages/AdminPage/AdminPage';
 import Dashboard from './pages/AdminPage/Dashboard/Dashboard';
 import AdminProducts from './pages/AdminPage/AdminProducts/AdminProducts';
@@ -33,11 +34,8 @@ import AdminOrders from './pages/AdminPage/AdminOrders/AdminOrders';
 import AdminUsers from './pages/AdminPage/AdminUsers/AdminUsers';
 import AdminPromotions from './pages/AdminPage/AdminPromotions/AdminPromotions';
 import AdminReviews from "./pages/AdminPage/AdminReviews/AdminReviews";
-
-// --- IMPORT MỚI CHO TRANG PROFILE ---
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ProtectedRoute from './components/common/ProtectedRoute/ProtectedRoute';
-// -------------------------------------
 import OrderSuccessPage from './pages/OrderSuccessPage/OrderSuccessPage';
 const GOOGLE_CLIENT_ID = "1091225024636-ha9v6d05co7i9iva4kkmjeskvsacb0qi.apps.googleusercontent.com";
 
@@ -65,7 +63,6 @@ function App() {
       <SideWishlist />
       <div className="App">
         <Routes>
-          {/* Các Route công khai */}
           <Route path="/" element={<HomePage />} />
           <Route path="/cart" element={<CartPage />} /> 
           <Route path="/ao-xuan-he" element={<ShirtListPage />} /> 
@@ -80,14 +77,11 @@ function App() {
           <Route path="/khuyen-mai" element={<PromotionsPage />} /> 
           <Route path="/search" element={<SearchResultsPage />} /> 
 
-
-          {/* --- CÁC ROUTE CẦN BẢO VỆ (PHẢI ĐĂNG NHẬP) --- */}
           <Route element={<ProtectedRoute />}>
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order-success" element={<OrderSuccessPage />} />
 
-            {/* 🧭 Admin nested routes */}
                   <Route path="/admin" element={<AdminPage />}>
                     <Route index element={<Dashboard />} />
                     <Route path="users" element={<AdminUsers />} />

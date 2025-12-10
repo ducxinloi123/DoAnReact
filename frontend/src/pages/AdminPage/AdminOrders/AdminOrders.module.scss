@@ -153,6 +153,12 @@
 .saveBtn:hover {
   background: #4338ca;
 }
+/* 1. Trạng thái Đơn Hàng */
+  .confirmed { background: #e0e7ff; color: #1e40af; } /* Xanh dương nhạt */
+  .shipping  { background: #cffafe; color: #155e75; } /* Cyan (Đang giao) */
+  .completed { background: #dcfce7; color: #166534; } /* Xanh lá (Hoàn tất) */
+  .canceled  { background: #fee2e2; color: #991b1b; } /* Đỏ (Hủy) */
+
 
 @keyframes fadeIn {
   from {

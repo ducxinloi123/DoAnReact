@@ -81,9 +81,9 @@ export const accessoryProducts = [
 ];
 export const promotions = [
   {
-    code: 'XTFASHION15',
+    code: 'NHANDUC15',
     description: 'Giảm 15% cho đơn hàng từ 2.000.000đ tối đa 500.000đ.',
-    expiry: 'Hết hạn: 31/12/2025',
+    expiry: 'Hết hạn: 31/1/2026',
     quantity: 100,
     // --- DỮ LIỆU LOGIC ĐÃ THÊM ---
     type: 'percent',          // Loại: %
@@ -92,9 +92,9 @@ export const promotions = [
     maxValue: 500000          // Giảm tối đa: 500k
   },
   {
-    code: 'FREESHIP',
+    code: 'HUPLEFREESHIP',
     description: 'Miễn phí vận chuyển cho tất cả đơn hàng từ 500.000đ.',
-    expiry: 'Hết hạn: 30/11/2025',
+    expiry: 'Hết hạn: 31/1/2026',
     quantity: 100,
     // --- DỮ LIỆU LOGIC ĐÃ THÊM ---
     type: 'shipping',         // Loại: Vận chuyển
@@ -104,7 +104,17 @@ export const promotions = [
   {
     code: 'SALE50K',
     description: 'Giảm ngay 50.000đ cho đơn hàng từ 1.000.000đ.',
-    expiry: 'Hết hạn: 31/10/2025',
+    expiry: 'Hết hạn: 31/1/2026',
+    quantity: 100,
+    // --- DỮ LIỆU LOGIC ĐÃ THÊM ---
+    type: 'fixed',            // Loại: Tiền cố định
+    value: 50000,             // Giá trị: 50.000đ
+    minOrderValue: 1000000    // Đơn tối thiểu: 1 triệu
+  },
+    {
+    code: 'BUMA50K',
+    description: 'Giảm ngay 50.000đ cho đơn hàng từ 1.000.000đ.',
+    expiry: 'Hết hạn: 31/1/2026',
     quantity: 100,
     // --- DỮ LIỆU LOGIC ĐÃ THÊM ---
     type: 'fixed',            // Loại: Tiền cố định

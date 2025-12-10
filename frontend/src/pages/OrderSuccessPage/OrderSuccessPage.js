@@ -33,7 +33,7 @@ const OrderSuccessPage = () => {
       <div className={styles.successContainer}>
         <FaCheckCircle className={styles.successIcon} />
         <h1>Đặt hàng thành công!</h1>
-        <p>Cảm ơn bạn, {customer.fullName}, đã mua hàng tại <strong>XT-Fashion</strong>.</p>
+        <p>Cảm ơn bạn, {customer.fullName}, đã mua hàng tại <strong>NhanDuc Store</strong>.</p>
         
         <div className={styles.orderDetails}>
           <p className={styles.orderIdText}>
@@ -90,7 +90,7 @@ const OrderSuccessPage = () => {
           Tiếp tục mua sắm
         </Link>
         {/* Thêm link đến trang profile/quản lý đơn hàng */}
-        <Link to="/profile" className={styles.trackOrderButton}>
+        <Link to="/profile" state={{ tab: 'orders' }} className={styles.trackOrderButton}>
           Theo dõi đơn hàng
         </Link>
       </div>

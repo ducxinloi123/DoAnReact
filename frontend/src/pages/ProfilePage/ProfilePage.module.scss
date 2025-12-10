@@ -398,6 +398,161 @@
     padding: 12px 30px;
   }
 }
+// --- PHẦN LỊCH SỬ ĐƠN HÀNG (Dark Theme) ---
+.ordersContainer {
+  width: 100%;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    color: #ffffff;
+    border-bottom: 2px solid #c92127; // Gạch chân màu đỏ
+    display: inline-block;
+    padding-bottom: 8px;
+  }
+
+  .placeholder {
+    color: #a0a0a0;
+    font-style: italic;
+    margin-top: 20px;
+  }
+
+  // Khung bao quanh bảng (giúp cuộn ngang trên điện thoại)
+  .orderList {
+    width: 100%;
+    overflow-x: auto; 
+    border-radius: 8px;
+    border: 1px solid #333; // Viền bao quanh bảng
+  }
+
+  .orderTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; // Đảm bảo bảng không bị co quá nhỏ
+    font-size: 0.95rem;
+    background-color: #252525; // Màu nền bảng
+
+    thead {
+      background-color: #1f1f1f; // Nền header đậm hơn xíu
+      tr {
+        th {
+          padding: 18px 15px;
+          text-align: left;
+          color: #a0a0a0; // Màu chữ tiêu đề cột
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 0.8rem;
+          border-bottom: 1px solid #333;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #333;
+        transition: background-color 0.2s ease;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &:hover {
+          background-color: #2a2a2a; // Hiệu ứng khi di chuột vào hàng
+        }
+
+        td {
+          padding: 15px;
+          color: #e0e0e0; // Màu chữ nội dung
+          vertical-align: top; // Căn chỉnh lên trên cùng
+
+          // 1. Mã đơn hàng
+          .orderId {
+            font-family: 'Courier New', monospace;
+            color: #4da6ff; // Màu xanh dương nhạt cho mã đơn
+            font-weight: 600;
+            background: rgba(77, 166, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+          }
+
+          // 2. Danh sách sản phẩm con
+          .orderItemsList {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .orderItemRow {
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+              
+              span:first-child { // Tên sản phẩm
+                color: #ffffff;
+                font-weight: 500;
+              }
+              .qty { // Số lượng
+                color: #888;
+                font-size: 0.85rem;
+                margin-left: 12px;
+                white-space: nowrap;
+              }
+            }
+          }
+
+          // 3. Tổng tiền
+          &.totalPrice {
+            color: #ff4d4f; // Màu đỏ cam nổi bật
+            font-weight: 700;
+            font-size: 1rem;
+          }
+
+          // 4. Nhãn trạng thái (Badge)
+          .statusBadge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            min-width: 110px;
+
+            // Màu vàng: Chờ xử lý
+            &.pending { 
+              background-color: rgba(255, 193, 7, 0.1); 
+              color: #ffc107; 
+              border: 1px solid rgba(255, 193, 7, 0.3);
+            }
+            
+            // Màu xanh dương: Đang giao
+            &.shipping {
+              background-color: rgba(23, 162, 184, 0.1);
+              color: #17a2b8; 
+              border: 1px solid rgba(23, 162, 184, 0.3);
+            }
+
+            // Màu xanh lá: Thành công
+            &.success { 
+              background-color: rgba(40, 167, 69, 0.1); 
+              color: #28a745; 
+              border: 1px solid rgba(40, 167, 69, 0.3);
+            }
+
+            // Màu đỏ: Đã hủy
+            &.cancel {
+              background-color: rgba(220, 53, 69, 0.1);
+              color: #dc3545; 
+              border: 1px solid rgba(220, 53, 69, 0.3);
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 @media (max-width: 480px) {
   .profilePage {
@@ -424,4 +579,5 @@
       font-size: 1.3rem;
     }
   }
+  
 }

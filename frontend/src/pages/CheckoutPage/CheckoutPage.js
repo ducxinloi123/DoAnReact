@@ -5,12 +5,15 @@ import styles from './CheckoutPage.module.scss';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
-import { promotions } from '../../data/mockData'; // Import khuyến mãi
+import { promotions } from '../../data/mockData';
+// --- 1. THÊM AXIOS ---
+import axios from 'axios';
 
 const CheckoutPage = () => {
   const { cartItems, selectedItems, clearCartItems } = useCart();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // --- 2. LẤY THÊM TOKEN TỪ AUTH ---
+  const { user, token } = useAuth();
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -24,8 +27,8 @@ const CheckoutPage = () => {
 
   // State cho khuyến mãi
   const [promoCodeInput, setPromoCodeInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState(null); // Lưu trữ TOÀN BỘ object promo đã áp dụng
-  const [discountAmount, setDiscountAmount] = useState(0); // Chỉ lưu số tiền giảm (fixed/percent)
+  const [appliedPromo, setAppliedPromo] = useState(null); 
+  const [discountAmount, setDiscountAmount] = useState(0); 
 
   useEffect(() => {
     if (user) {
@@ -37,7 +40,7 @@ const CheckoutPage = () => {
     }
   }, [user]);
 
-  // Lọc sản phẩm
+  // Lọc sản phẩm được chọn để thanh toán
   const itemsToCheckout = useMemo(() => 
     cartItems.filter(item => selectedItems.includes(`${item.id}-${item.color}-${item.size}`))
   , [cartItems, selectedItems]);
@@ -47,28 +50,24 @@ const CheckoutPage = () => {
     itemsToCheckout.reduce((total, item) => total + (item.price * item.quantity), 0)
   , [itemsToCheckout]);
   
-  // --- CẬP NHẬT LOGIC TÍNH PHÍ VẬN CHUYỂN ---
+  // Tính phí vận chuyển
   const shippingFee = useMemo(() => {
-    // 1. Kiểm tra nếu có mã freeship được áp dụng
     if (appliedPromo && appliedPromo.type === 'shipping') {
-      return 0; // Miễn phí
+      return 0;
     }
-    // 2. Kiểm tra điều kiện freeship mặc định (đơn > 2 triệu)
     if (subtotal >= 2000000 || subtotal === 0) {
-      return 0; // Miễn phí
+      return 0;
     }
-    // 3. Mặc định 30k
     return 30000;
-  }, [subtotal, appliedPromo]); // Phụ thuộc vào tạm tính và mã KM
+  }, [subtotal, appliedPromo]); 
   
   // Tính Tổng cộng
   const total = useMemo(() => {
-    // Tổng = Tạm tính + Phí ship (đã tính KM) - Tiền giảm giá (đã tính KM)
     const calculatedTotal = subtotal + shippingFee - discountAmount;
     return Math.max(0, calculatedTotal);
   }, [subtotal, shippingFee, discountAmount]);
 
-  // Tự động kiểm tra lại mã KM nếu giỏ hàng thay đổi
+  // Logic kiểm tra lại mã KM
   useEffect(() => {
     if (appliedPromo && subtotal < appliedPromo.minOrderValue) {
       setAppliedPromo(null);
@@ -76,7 +75,6 @@ const CheckoutPage = () => {
       setPromoCodeInput('');
       toast.info('Mã khuyến mãi đã bị gỡ do không đủ điều kiện.');
     }
-    // Tự động tính lại discount nếu là mã %
     else if (appliedPromo && appliedPromo.type === 'percent') {
       let discount = subtotal * (appliedPromo.value / 100);
       if (appliedPromo.maxValue && discount > appliedPromo.maxValue) {
@@ -84,8 +82,7 @@ const CheckoutPage = () => {
       }
       setDiscountAmount(Math.min(discount, subtotal));
     }
-
-  }, [subtotal, appliedPromo]); // Chỉ phụ thuộc subtotal và appliedPromo
+  }, [subtotal, appliedPromo]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -99,30 +96,23 @@ const CheckoutPage = () => {
     }
   };
 
-  // --- HÀM ÁP DỤNG MÃ (CẬP NHẬT) ---
+  // Logic áp dụng mã KM
   const handleApplyPromoCode = () => {
     if (appliedPromo) return;
-
     const code = promoCodeInput.trim().toUpperCase();
     if (!code) {
       toast.error('Vui lòng nhập mã khuyến mãi');
       return;
     }
-
     const promo = promotions.find(p => p.code.toUpperCase() === code);
-
     if (!promo) {
       toast.error('Mã khuyến mãi không hợp lệ hoặc đã hết hạn.');
       return;
     }
-
-    // Kiểm tra điều kiện đơn hàng tối thiểu
     if (subtotal < promo.minOrderValue) {
       toast.warn(`Đơn hàng phải từ ${formatPrice(promo.minOrderValue)} để áp dụng mã này.`);
       return;
     }
-
-    // --- XỬ LÝ TÙY LOẠI MÃ ---
     if (promo.type === 'fixed') {
       const discount = Math.min(promo.value, subtotal);
       setDiscountAmount(discount);
@@ -134,36 +124,29 @@ const CheckoutPage = () => {
       if (promo.maxValue && discount > promo.maxValue) {
         discount = promo.maxValue;
       }
-      discount = Math.min(discount, subtotal);
-      
-      setDiscountAmount(discount);
+      setDiscountAmount(Math.min(discount, subtotal));
       setAppliedPromo(promo);
       toast.success(`Áp dụng mã giảm ${formatPrice(discount)} thành công!`);
     } 
     else if (promo.type === 'shipping') {
-      // Chỉ cần set mã, shippingFee useMemo sẽ tự động tính lại
-      setDiscountAmount(0); // Mã ship không giảm tiền
+      setDiscountAmount(0); 
       setAppliedPromo(promo);
       toast.success('Áp dụng mã miễn phí vận chuyển thành công!');
     }
   };
 
-  // --- HÀM GỠ MÃ (CẬP NHẬT) ---
   const handleRemovePromoCode = () => {
     setAppliedPromo(null);
-    setDiscountAmount(0); // Reset cả tiền giảm
+    setDiscountAmount(0);
     setPromoCodeInput('');
     toast.info('Đã gỡ mã khuyến mãi.');
   };
-  // -------------------------------
 
   const validateForm = () => {
-    // ... (Không thay đổi)
     let newErrors = {};
     if (!formData.fullName) newErrors.fullName = 'Vui lòng nhập họ và tên';
     if (!formData.phone) newErrors.phone = 'Vui lòng nhập số điện thoại';
     if (!formData.address) newErrors.address = 'Vui lòng nhập địa chỉ';
-    
     if (!formData.email) {
       newErrors.email = 'Vui lòng nhập email';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -173,7 +156,8 @@ const CheckoutPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmitOrder = (e) => {
+  // --- 3. HÀM GỬI ĐƠN HÀNG LÊN SERVER ---
+  const handleSubmitOrder = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -186,34 +170,68 @@ const CheckoutPage = () => {
       return;
     }
 
-    const mockOrderId = `XT-${Date.now().toString().slice(-6)}`;
-    
-    clearCartItems(selectedItems);
-    
-    toast.success('Đặt hàng thành công!');
-    // Truyền dữ liệu chi tiết sang trang thành công
-    navigate('/order-success', { 
-      state: { 
-        orderId: mockOrderId,
-        total: total, // Tổng tiền cuối cùng
-        subtotal: subtotal, // Tạm tính
-        shippingFee: shippingFee, // Phí ship (đã tính KM)
-        discount: discountAmount, // Tiền giảm (chỉ tiền)
-        appliedPromoCode: appliedPromo ? appliedPromo.code : null,
-        items: itemsToCheckout,
-        customer: formData
-      }, 
-      replace: true 
-    });
+    // Chuẩn bị dữ liệu gửi lên API
+    const orderData = {
+      orderItems: itemsToCheckout.map(item => ({
+        name: item.name,
+        qty: item.quantity,
+        image: item.imageUrl || item.images[0], 
+        price: item.price,
+        product: item.id, // ID sản phẩm (quan trọng để liên kết DB)
+        // Lưu thêm màu/size vào database nếu cần (bạn có thể cần sửa Model Backend để nhận thêm field này)
+      })),
+      shippingAddress: {
+        address: formData.address,
+        city: "Hồ Chí Minh", // Tạm thời để cứng hoặc thêm ô chọn City
+        phone: formData.phone,
+      },
+      paymentMethod: paymentMethod === 'cod' ? 'COD' : 'VNPAY',
+      totalPrice: total,
+    };
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`, // Gửi kèm token
+        },
+      };
+
+      // GỌI API TẠO ĐƠN
+      const { data } = await axios.post('http://localhost:5000/api/orders', orderData, config);
+
+      // Nếu thành công:
+      toast.success('Đặt hàng thành công!');
+      
+      // Xóa các món đã mua khỏi giỏ
+      clearCartItems(selectedItems);
+      
+      // Chuyển sang trang thành công với dữ liệu thật từ Server trả về
+      navigate('/order-success', { 
+        state: { 
+          orderId: data._id, // ID thật từ MongoDB (VD: 6578a...)
+          total: data.totalPrice,
+          subtotal: subtotal,
+          shippingFee: shippingFee,
+          discount: discountAmount,
+          appliedPromoCode: appliedPromo ? appliedPromo.code : null,
+          items: itemsToCheckout,
+          customer: formData
+        }, 
+        replace: true 
+      });
+
+    } catch (error) {
+      console.error("Lỗi đặt hàng:", error);
+      toast.error(error.response?.data?.message || "Đặt hàng thất bại. Vui lòng thử lại!");
+    }
   };
 
   return (
     <PageLayout pageTitle="Thanh toán">
       <div className={styles.checkoutContainer}>
         <form onSubmit={handleSubmitOrder} className={styles.checkoutGrid} noValidate>
-          {/* Cột bên trái: Thông tin khách hàng (Không thay đổi) */}
+          {/* CỘT TRÁI: THÔNG TIN KHÁCH */}
           <div className={styles.customerInfo}>
-            {/* ... (Giữ nguyên input họ tên, email, sđt, địa chỉ, ghi chú) ... */}
             <h2>Thông tin giao hàng</h2>
             <div className={styles.inputGroup}>
               <input 
@@ -271,7 +289,6 @@ const CheckoutPage = () => {
               onChange={handleChange}
             ></textarea>
             
-            {/* Phương thức thanh toán (Không thay đổi) */}
             <h2 className={styles.paymentTitle}>Phương thức thanh toán</h2>
             <div className={styles.paymentOptions}>
               <label className={styles.paymentOption}>
@@ -299,10 +316,9 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {/* Cột bên phải: Tóm tắt đơn hàng (Không thay đổi UI) */}
+          {/* CỘT PHẢI: TÓM TẮT ĐƠN HÀNG */}
           <div className={styles.orderSummary}>
             <h2>Đơn hàng của bạn ({itemsToCheckout.length} sản phẩm)</h2>
-            {/* ... (Phần map sản phẩm) ... */}
             <div className={styles.summaryItems}>
               {itemsToCheckout.length > 0 ? (
                 itemsToCheckout.map(item => (
@@ -326,14 +342,13 @@ const CheckoutPage = () => {
 
             {itemsToCheckout.length > 0 && (
               <>
-                {/* Phần khuyến mãi (Không thay đổi UI) */}
                 {!appliedPromo ? (
                   <div className={styles.promoCode}>
                     <input 
                       type="text" 
                       placeholder="Mã giảm giá" 
                       value={promoCodeInput} 
-                      onChange={(e) => setPromoCodeInput(e.target.value)}
+                      onChange={(e) => setPromoCodeInput(e.target.value)} 
                     />
                     <button type="button" onClick={handleApplyPromoCode}>Áp dụng</button>
                   </div>
@@ -344,7 +359,6 @@ const CheckoutPage = () => {
                   </div>
                 )}
                 
-                {/* Phần tính toán (UI KHÔNG ĐỔI, nhưng logic đã đúng) */}
                 <div className={styles.calculation}>
                   <div className={styles.calcRow}>
                     <span>Tạm tính</span>
@@ -352,11 +366,9 @@ const CheckoutPage = () => {
                   </div>
                   <div className={styles.calcRow}>
                     <span>Phí vận chuyển</span>
-                    {/* Biến shippingFee giờ đã tự động là 0 nếu có KM */}
                     <span>{shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}</span>
                   </div>
 
-                  {/* Chỉ hiển thị khi có giảm giá (fixed/percent) */}
                   {discountAmount > 0 && (
                     <div className={`${styles.calcRow} ${styles.discountRow}`}>
                       <span>Giảm giá</span>

@@ -1,8 +1,6 @@
 import React from 'react'; // Bỏ "useContext" vì chúng ta không dùng trực tiếp nữa
 import styles from './ProductCard.module.scss';
 import { Link } from 'react-router-dom';
-
-// THAY ĐỔI 1: Import hook "useWishlist" thay vì "WishlistContext"
 import { useWishlist } from '../../../contexts/WishlistContext'; 
 
 // Hàm định dạng tiền tệ

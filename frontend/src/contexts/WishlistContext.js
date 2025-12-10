@@ -6,13 +6,13 @@ const WishlistContext = createContext();
 export const WishlistProvider = ({ children }) => {
   const { user } = useAuth();
   
-  // 1. Tạo dynamic key: Nếu có user thì dùng "wishlist_userId", nếu không thì dùng "wishlist_guest"
+  // Tạo dynamic key: Nếu có user thì dùng "wishlist_userId", nếu không thì dùng "wishlist_guest"
   const wishlistKey = user ? `wishlist_${user.id}` : 'wishlist_guest';
 
   const [wishlist, setWishlist] = useState([]);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
-  // 2. Load wishlist khi key thay đổi (Login/Logout/Mount)
+  //  Load wishlist khi key thay đổi (Login/Logout/Mount)
   useEffect(() => {
     try {
       const localData = localStorage.getItem(wishlistKey);

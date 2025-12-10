@@ -1,66 +1,21 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import styles from "./AdminOrders.module.scss";
 import {
   FiEye,
   FiEdit2,
   FiChevronLeft,
   FiChevronRight,
+  FiTruck, // Thêm icon xe tải
+  FiCheckCircle
 } from "react-icons/fi";
-
-/** Mock data theo đúng cấu trúc ảnh */
-const MOCK_ORDERS = [
-  {
-    id: 18,
-    orderCode: "#18",
-    customer: "John Doe",
-    receiver: "Quoc Ta",
-    method: "cod",                 
-    payStatus: "unpaid",           
-    orderStatus: "confirmed",      
-    createdAt: "2025-06-07 11:23",
-    updatedAt: "2025-06-07 11:24",
-    total: 1105000000,
-  },
-  {
-    id: 17,
-    orderCode: "#17",
-    customer: "John Doe",
-    receiver: "Quoc Ta",
-    method: "cod",
-    payStatus: "refund",
-    orderStatus: "canceled",
-    createdAt: "2025-06-07 11:10",
-    updatedAt: "2025-06-07 11:15",
-    total: 45000000,
-  },
-  {
-    id: 16,
-    orderCode: "#16",
-    customer: "John Doe",
-    receiver: "Quoc Ta",
-    method: "vnpay",
-    payStatus: "failed",
-    orderStatus: "canceled",
-    createdAt: "2025-06-07 11:09",
-    updatedAt: "2025-06-07 11:23",
-    total: 45000000,
-  },
-  {
-    id: 15,
-    orderCode: "#15",
-    customer: "John Doe",
-    receiver: "Quoc Ta",
-    method: "vnpay",
-    payStatus: "failed",
-    orderStatus: "canceled",
-    createdAt: "2025-06-07 11:09",
-    updatedAt: "2025-06-07 11:23",
-    total: 112,
-  },
-];
+import axios from "axios";
+import { useAuth } from "../../../contexts/AuthContext"; // Import Auth
+import { toast } from "react-toastify";
 
 export default function AdminOrders() {
-  const [rows, setRows] = useState(MOCK_ORDERS);
+  const { token } = useAuth(); // Lấy token
+  const [rows, setRows] = useState([]); // Khởi tạo rỗng để chứa dữ liệu thật
+  const [loading, setLoading] = useState(false);
 
   // filters
   const [query, setQuery] = useState("");
@@ -71,8 +26,8 @@ export default function AdminOrders() {
   const [orderStatus, setOrderStatus] = useState("all");
 
   // sort + paging
-  const [sortKey, setSortKey] = useState("createdAt"); 
-  const [sortDir, setSortDir] = useState("desc");      
+  const [sortKey, setSortKey] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
@@ -81,8 +36,75 @@ export default function AdminOrders() {
 
   const methods = ["all", "cod", "vnpay", "momo"];
   const payStatuses = ["all", "unpaid", "refund", "failed", "paid"];
-  const orderStatuses = ["all", "confirmed", "canceled"];
+  const orderStatuses = ["all", "confirmed", "shipping", "completed", "canceled"]; // Thêm shipping, completed
 
+  // --- 1. HÀM TẢI DỮ LIỆU TỪ SERVER ---
+  const fetchOrders = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      // Gọi API lấy tất cả đơn
+      const { data } = await axios.get('http://localhost:5000/api/orders', config);
+
+      // Chuyển đổi dữ liệu Backend -> Frontend UI
+      const mappedOrders = data.map(order => ({
+        id: order._id,
+        orderCode: `#${order._id.substring(0, 6).toUpperCase()}`,
+        customer: order.user?.name || "Khách vãng lai",
+        receiver: order.shippingAddress.address, // Lấy địa chỉ làm người nhận
+        method: order.paymentMethod.toLowerCase(), // cod, vnpay...
+        // Logic map trạng thái thanh toán
+        payStatus: order.isPaid ? 'paid' : 'unpaid', 
+        // Logic map trạng thái đơn hàng
+        orderStatus: mapBackendStatus(order.status), 
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        total: order.totalPrice,
+      }));
+
+      setRows(mappedOrders);
+    } catch (error) {
+      console.error("Lỗi tải đơn hàng:", error);
+      toast.error("Không thể tải danh sách đơn hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper map trạng thái Backend -> UI Class
+  const mapBackendStatus = (status) => {
+    if (status === 'Chờ xử lý') return 'confirmed';
+    if (status === 'Đang giao hàng') return 'shipping';
+    if (status === 'Đã giao hàng') return 'completed'; // Hoặc 'confirmed' nếu muốn dùng màu xanh lá
+    if (status === 'Đã hủy') return 'canceled';
+    return 'confirmed';
+  };
+
+  // Gọi API khi vào trang
+  useEffect(() => {
+    fetchOrders();
+  }, [token]);
+
+  // --- 2. HÀM XỬ LÝ GIAO HÀNG ---
+  const handleDeliver = async (id) => {
+    if (!window.confirm("Xác nhận đơn hàng này đã được giao thành công?")) return;
+
+    try {
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.put(`http://localhost:5000/api/orders/${id}/deliver`, {}, config);
+      
+      toast.success("Đã cập nhật trạng thái giao hàng!");
+      fetchOrders(); // Tải lại danh sách
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi cập nhật trạng thái");
+    }
+  };
+
+  // --- LOGIC LỌC VÀ SẮP XẾP (GIỮ NGUYÊN) ---
   const filtered = useMemo(() => {
     let data = [...rows];
 
@@ -98,7 +120,11 @@ export default function AdminOrders() {
 
     if (method !== "all") data = data.filter((r) => r.method === method);
     if (payStatus !== "all") data = data.filter((r) => r.payStatus === payStatus);
-    if (orderStatus !== "all") data = data.filter((r) => r.orderStatus === orderStatus);
+    
+    // Sửa logic lọc trạng thái cho khớp với mapBackendStatus
+    if (orderStatus !== "all") {
+        data = data.filter((r) => r.orderStatus === orderStatus);
+    }
 
     if (dateFrom) data = data.filter((r) => new Date(r.createdAt) >= new Date(dateFrom));
     if (dateTo) data = data.filter((r) => new Date(r.createdAt) <= new Date(dateTo));
@@ -121,21 +147,27 @@ export default function AdminOrders() {
     return data;
   }, [rows, query, method, payStatus, orderStatus, dateFrom, dateTo, sortKey, sortDir]);
 
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const start = (page - 1) * pageSize;
-  const end = Math.min(total, start + pageSize);
-  const pageRows = filtered.slice(start, end);
+  const totalItems = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = Math.min(totalItems, startIdx + pageSize);
+  const pageRows = filtered.slice(startIdx, endIdx);
 
   const badge = (t, cls) => <span className={`${styles.badge} ${styles[cls]}`}>{t}</span>;
 
   const methodText = (m) =>
-    m === "cod" ? "Thanh toán khi nhận hàng" : m === "vnpay" ? "VN Pay" : "MoMo";
+    m === "cod" ? "Thanh toán khi nhận hàng" : m === "vnpay" ? "VN Pay" : m;
 
   const payText = (s) =>
-    s === "unpaid" ? "Chưa thanh toán" : s === "refund" ? "Yêu cầu hoàn tiền" : s === "failed" ? "Thất bại" : "Đã thanh toán";
+    s === "unpaid" ? "Chưa thanh toán" : s === "refund" ? "Hoàn tiền" : s === "failed" ? "Thất bại" : "Đã thanh toán";
 
-  const orderText = (s) => (s === "confirmed" ? "Đã xác nhận" : "Đã hủy");
+  const orderText = (s) => {
+      if(s === "confirmed") return "Chờ xử lý";
+      if(s === "shipping") return "Đang giao";
+      if(s === "completed") return "Hoàn tất";
+      if(s === "canceled") return "Đã hủy";
+      return s;
+  };
 
   const jumpTo = (e) => {
     const n = Number(e.target.value);
@@ -148,11 +180,13 @@ export default function AdminOrders() {
   };
 
   const handleSaveEdit = () => {
+    // Hiện tại chưa có API sửa thông tin chi tiết, chỉ update UI tạm thời
     if (!editingOrder) return;
     setRows((prev) =>
       prev.map((o) => (o.id === editingOrder.id ? editingOrder : o))
     );
     setEditingOrder(null);
+    toast.info("Đã lưu thay đổi (Local Only - Cần API Update để lưu thật)");
   };
 
   return (
@@ -178,7 +212,6 @@ export default function AdminOrders() {
             setDateFrom(e.target.value);
             setPage(1);
           }}
-          placeholder="Từ ngày"
         />
         <input
           className={styles.select}
@@ -188,7 +221,6 @@ export default function AdminOrders() {
             setDateTo(e.target.value);
             setPage(1);
           }}
-          placeholder="Đến ngày"
         />
         <select
           className={styles.select}
@@ -235,7 +267,7 @@ export default function AdminOrders() {
         </select>
 
         <div className={styles.sortGroup}>
-          <label>Sắp xếp theo:</label>
+          <label>Sắp xếp:</label>
           <select value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
             <option value="createdAt">Ngày tạo</option>
             <option value="updatedAt">Cập nhật</option>
@@ -245,7 +277,7 @@ export default function AdminOrders() {
             className={styles.dirBtn}
             onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
           >
-            {sortDir === "asc" ? "↑ Tăng dần" : "↓ Giảm dần"}
+            {sortDir === "asc" ? "↑ Tăng" : "↓ Giảm"}
           </button>
         </div>
 
@@ -264,59 +296,67 @@ export default function AdminOrders() {
               </option>
             ))}
           </select>
-          <span>mục / trang</span>
+          <span>/ trang</span>
         </div>
       </div>
 
       {/* TABLE */}
       <div className={styles.tableWrap}>
+        {loading ? (
+            <div style={{padding: 20, textAlign: 'center', color: 'white'}}>Đang tải dữ liệu...</div>
+        ) : (
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: 70 }}>STT</th>
-              <th>Mã đơn hàng</th>
+              <th style={{ width: 60 }}>STT</th>
+              <th>Mã đơn</th>
               <th>Khách hàng</th>
               <th>Người nhận</th>
               <th>Phương thức</th>
-              <th>Trạng thái thanh toán</th>
-              <th>Trạng thái đơn hàng</th>
+              <th>Thanh toán</th>
+              <th>Trạng thái</th>
               <th>Ngày tạo</th>
-              <th>Cập nhật</th>
               <th>Tổng tiền</th>
-              <th style={{ width: 130, textAlign: "right" }}>Thao tác</th>
+              <th style={{ width: 140, textAlign: "right" }}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={11} style={{ textAlign: "center", padding: 24, color: "#6b7280" }}>
+                <td colSpan={10} style={{ textAlign: "center", padding: 24, color: "#6b7280" }}>
                   Không có đơn hàng nào
                 </td>
               </tr>
             ) : (
               pageRows.map((r, idx) => (
                 <tr key={r.id}>
-                  <td>{start + idx + 1}</td>
+                  <td>{startIdx + idx + 1}</td>
                   <td>{r.orderCode}</td>
                   <td>{r.customer}</td>
                   <td>{r.receiver}</td>
                   <td>{methodText(r.method)}</td>
                   <td>
-                    {badge(
-                      payText(r.payStatus),
-                      r.payStatus 
-                    )}
+                    {badge(payText(r.payStatus), r.payStatus)}
                   </td>
                   <td>
-                    {badge(
-                      orderText(r.orderStatus),
-                      r.orderStatus 
-                    )}
+                    {badge(orderText(r.orderStatus), r.orderStatus)}
                   </td>
-                  <td>{r.createdAt}</td>
-                  <td>{r.updatedAt}</td>
+                  <td>{new Date(r.createdAt).toLocaleDateString('vi-VN')}</td>
                   <td className={styles.money}>{r.total.toLocaleString("vi-VN")} đ</td>
-                  <td style={{ textAlign: "right" }}>
+                  <td style={{ textAlign: "right", display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
+                    
+                    {/* NÚT GIAO HÀNG (Chỉ hiện khi chưa hoàn tất/hủy) */}
+                    {r.orderStatus !== 'completed' && r.orderStatus !== 'canceled' && (
+                        <button 
+                            className={`${styles.iconBtn}`} 
+                            style={{ color: '#10b981', borderColor: '#10b981' }}
+                            title="Xác nhận giao hàng"
+                            onClick={() => handleDeliver(r.id)}
+                        >
+                          <FiTruck />
+                        </button>
+                    )}
+
                     <button className={`${styles.iconBtn} ${styles.view}`} title="Xem">
                       <FiEye />
                     </button>
@@ -333,12 +373,13 @@ export default function AdminOrders() {
             )}
           </tbody>
         </table>
+        )}
       </div>
 
       {/* PAGINATION */}
       <div className={styles.footer}>
         <div className={styles.rangeInfo}>
-          {total === 0 ? "0-0" : `${start + 1}-${end}`} của {total} mục
+          {totalItems === 0 ? "0-0" : `${startIdx + 1}-${endIdx}`} của {totalItems} mục
         </div>
 
         <div className={styles.pager}>
@@ -365,7 +406,7 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* MODAL EDIT ORDER */}
+      {/* MODAL EDIT ORDER (Giữ nguyên UI, chỉ update state tạm) */}
       {editingOrder && (
         <div className={styles.modalBackdrop}>
           <div className={styles.modal}>
@@ -380,10 +421,7 @@ export default function AdminOrders() {
                   type="text"
                   value={editingOrder.customer}
                   onChange={(e) =>
-                    setEditingOrder((prev) => ({
-                      ...prev,
-                      customer: e.target.value,
-                    }))
+                    setEditingOrder((prev) => ({ ...prev, customer: e.target.value }))
                   }
                 />
               </div>
@@ -394,10 +432,7 @@ export default function AdminOrders() {
                   type="text"
                   value={editingOrder.receiver}
                   onChange={(e) =>
-                    setEditingOrder((prev) => ({
-                      ...prev,
-                      receiver: e.target.value,
-                    }))
+                    setEditingOrder((prev) => ({ ...prev, receiver: e.target.value }))
                   }
                 />
               </div>
@@ -407,19 +442,12 @@ export default function AdminOrders() {
                 <select
                   value={editingOrder.method}
                   onChange={(e) =>
-                    setEditingOrder((prev) => ({
-                      ...prev,
-                      method: e.target.value,
-                    }))
+                    setEditingOrder((prev) => ({ ...prev, method: e.target.value }))
                   }
                 >
-                  {methods
-                    .filter((m) => m !== "all")
-                    .map((m) => (
-                      <option key={m} value={m}>
-                        {methodText(m)}
-                      </option>
-                    ))}
+                  {methods.filter((m) => m !== "all").map((m) => (
+                    <option key={m} value={m}>{methodText(m)}</option>
+                  ))}
                 </select>
               </div>
 
@@ -428,19 +456,12 @@ export default function AdminOrders() {
                 <select
                   value={editingOrder.payStatus}
                   onChange={(e) =>
-                    setEditingOrder((prev) => ({
-                      ...prev,
-                      payStatus: e.target.value,
-                    }))
+                    setEditingOrder((prev) => ({ ...prev, payStatus: e.target.value }))
                   }
                 >
-                  {payStatuses
-                    .filter((s) => s !== "all")
-                    .map((s) => (
-                      <option key={s} value={s}>
-                        {payText(s)}
-                      </option>
-                    ))}
+                  {payStatuses.filter((s) => s !== "all").map((s) => (
+                    <option key={s} value={s}>{payText(s)}</option>
+                  ))}
                 </select>
               </div>
 
@@ -449,19 +470,12 @@ export default function AdminOrders() {
                 <select
                   value={editingOrder.orderStatus}
                   onChange={(e) =>
-                    setEditingOrder((prev) => ({
-                      ...prev,
-                      orderStatus: e.target.value,
-                    }))
+                    setEditingOrder((prev) => ({ ...prev, orderStatus: e.target.value }))
                   }
                 >
-                  {orderStatuses
-                    .filter((s) => s !== "all")
-                    .map((s) => (
-                      <option key={s} value={s}>
-                        {orderText(s)}
-                      </option>
-                    ))}
+                  {orderStatuses.filter((s) => s !== "all").map((s) => (
+                    <option key={s} value={s}>{orderText(s)}</option>
+                  ))}
                 </select>
               </div>
             </div>
