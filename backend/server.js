@@ -12,7 +12,16 @@ const promotionRoutes = require('./routes/promotionRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
-app.use(cors());
+
+// --- CẬP NHẬT CẤU HÌNH CORS ---
+// Cho phép Frontend từ Localhost VÀ từ DevTunnel gọi vào
+app.use(cors({
+ origin: true, 
+  credentials: true
+ // Cho phép gửi cookie/token xác thực
+}));
+// ------------------------------
+
 app.use(express.json());
 
 // Kết nối DB
